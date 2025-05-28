@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Create Event{% endblock %}
+{% block content %}
+<h2>Create New Event</h2>
+<form method="post">
+    <label>Event Name</label>
+    <input type="text" name="event_name" required />
+    <label>Description</label>
+    <textarea name="description"></textarea>
+    <label>Start Time</label>
+    <input type="datetime-local" name="start_time" required />
+    <label>End Time</label>
+    <input type="datetime-local" name="end_time" required />
+    <label>Venue</label>
+    <select name="venue_id" required>
+        {% for venue in venues %}
+            <option value="{{ venue[0] }}">{{ venue[1] }} ({{ venue[2] }})</option>
+        {% endfor %}
+    </select>
+    <label>Category</label>
+    <input type="text" name="category" />
+    <button type="submit">Create Event</button>
+</form>
+{% endblock %}

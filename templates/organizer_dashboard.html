@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Organizer Dashboard{% endblock %}
+{% block content %}
+<h2>Your Events</h2>
+<a href="{{ url_for('create_event') }}">Create New Event</a>
+{% if events %}
+    <ul>
+    {% for event in events %}
+        <li>{{ event[1] }} — {{ event[3].strftime('%Y-%m-%d %H:%M') }} to {{ event[4].strftime('%Y-%m-%d %H:%M') }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>You have not created any events yet.</p>
+{% endif %}
+{% endblock %}

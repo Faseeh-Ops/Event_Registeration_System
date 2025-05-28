@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Attendee Dashboard{% endblock %}
+{% block content %}
+<h2>Available Events</h2>
+{% if events %}
+    <ul>
+    {% for event in events %}
+        <li>
+            <a href="{{ url_for('event_detail', event_id=event[0]) }}">{{ event[1] }}</a> —
+            {{ event[3].strftime('%Y-%m-%d %H:%M') }} at {{ event[5] }} ({{ event[6] }})
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No events available.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}{{ event[1] }} Details{% endblock %}
+{% block content %}
+<h2>{{ event[1] }}</h2>
+<p>{{ event[2] }}</p>
+<p>Venue: {{ event[6] }} — {{ event[7] }}</p>
+<p>Category: {{ event[8] }}</p>
+<p>Start: {{ event[3].strftime('%Y-%m-%d %H:%M') }}</p>
+<p>End: {{ event[4].strftime('%Y-%m-%d %H:%M') }}</p>
+
+<div id="countdown"></div>
+
+{% if session.get('role') == 'Attendee' %}
+    {% if registered %}
+        <p><strong>You are registered for this event.</strong></p>
+    {% else %}
+        <form method="post">
+            <button type="submit">Register for this event</button>
+        </form>
+    {% endif %}
+{% endif %}
+
+<script>
+    const eventStartTime = new Date("{{ event[3].strftime('%Y-%m-%dT%H:%M:%S') }}");
+    startCountdown(eventStartTime);
+</script>
+{% endblock %}
