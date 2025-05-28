@@ -37,7 +37,16 @@ def get_all_events():
 def get_event(event_id):
     cur = mysql.connection.cursor()
     cur.execute("""
-        SELECT e.*, v.venue_name, v.location FROM EM_Events e 
+        SELECT 
+            e.event_id, 
+            e.event_name, 
+            e.description, 
+            e.start_time, 
+            e.end_time, 
+            v.venue_name, 
+            v.location, 
+            e.category 
+        FROM EM_Events e 
         JOIN EM_Venues v ON e.venue_id = v.venue_id
         WHERE e.event_id=%s
     """, (event_id,))
@@ -129,20 +138,59 @@ def create_event():
     if request.method == 'POST':
         event_name = request.form['event_name']
         description = request.form['description']
-        start_time = request.form['start_time']
-        end_time = request.form['end_time']
+        start_time = datetime.strptime(request.form['start_time'], '%Y-%m-%dT%H:%M')  # Parse the datetime
+        end_time = datetime.strptime(request.form['end_time'], '%Y-%m-%dT%H:%M')    # Parse the datetime
         venue_id = request.form['venue_id']
         category = request.form['category']
+
+        # Format for database storage
+        start_time_str = start_time.strftime('%Y-%m-%d %H:%M:%S')
+        end_time_str = end_time.strftime('%Y-%m-%d %H:%M:%S')
 
         cur.execute("""
             INSERT INTO EM_Events (event_name, description, start_time, end_time, venue_id, organizer_id, category)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (event_name, description, start_time, end_time, venue_id, session['user_id'], category))
+        """, (event_name, description, start_time_str, end_time_str, venue_id, session['user_id'], category))
         mysql.connection.commit()
         flash('Event created successfully')
         return redirect(url_for('organizer_dashboard'))
 
     return render_template('create_event.html', venues=venues)
+
+
+# Add this route in app.py after the create_event route
+@app.route('/organizer/delete_event/<int:event_id>', methods=['POST'])
+def delete_event(event_id):
+    if 'user_id' not in session or session['role'] != 'Organizer':
+        flash('Access denied')
+        return redirect(url_for('login'))
+
+    # First check if the event belongs to the current organizer
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT organizer_id FROM EM_Events WHERE event_id=%s", (event_id,))
+    event = cur.fetchone()
+
+    if not event:
+        flash('Event not found')
+        return redirect(url_for('organizer_dashboard'))
+
+    if event[0] != session['user_id']:
+        flash('You can only delete your own events')
+        return redirect(url_for('organizer_dashboard'))
+
+    try:
+        # First delete related records to maintain referential integrity
+        cur.execute("DELETE FROM EM_EventRegistrations WHERE event_id=%s", (event_id,))
+        cur.execute("DELETE FROM EM_Feedbacks WHERE event_id=%s", (event_id,))
+        # Then delete the event
+        cur.execute("DELETE FROM EM_Events WHERE event_id=%s", (event_id,))
+        mysql.connection.commit()
+        flash('Event deleted successfully')
+    except Exception as e:
+        mysql.connection.rollback()
+        flash('Error deleting event')
+
+    return redirect(url_for('organizer_dashboard'))
 
 # Attendee dashboard
 @app.route('/attendee')

@@ -1,10 +1,11 @@
+<!-- event_detail.html -->
 {% extends 'base.html' %}
 {% block title %}{{ event[1] }} Details{% endblock %}
 {% block content %}
 <h2>{{ event[1] }}</h2>
 <p>{{ event[2] }}</p>
-<p>Venue: {{ event[6] }} — {{ event[7] }}</p>
-<p>Category: {{ event[8] }}</p>
+<p>Venue: {{ event[5] }} — {{ event[6] }}</p>  <!-- Updated venue display -->
+<p>Category: {{ event[7] }}</p>  <!-- Updated category display -->
 <p>Start: {{ event[3].strftime('%Y-%m-%d %H:%M') }}</p>
 <p>End: {{ event[4].strftime('%Y-%m-%d %H:%M') }}</p>
 

@@ -1,12 +1,16 @@
+// countdown.js
 function startCountdown(eventDate) {
     const countdownEl = document.getElementById('countdown');
+
+    // Check if element exists
+    if (!countdownEl) return;
 
     function updateCountdown() {
         const now = new Date();
         let diff = eventDate - now;
 
         if (diff <= 0) {
-            countdownEl.innerHTML = '<strong>Event has started!</strong>';
+            countdownEl.innerHTML = '<strong>Event is happening now!</strong>';
             clearInterval(interval);
             return;
         }
@@ -19,7 +23,13 @@ function startCountdown(eventDate) {
         diff -= minutes * (1000 * 60);
         const seconds = Math.floor(diff / 1000);
 
-        countdownEl.textContent = `Starts in: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+        // Improved display format
+        let countdownText = 'Starts in: ';
+        if (days > 0) countdownText += `${days}d `;
+        if (hours > 0 || days > 0) countdownText += `${hours}h `;
+        countdownText += `${minutes}m ${seconds}s`;
+
+        countdownEl.textContent = countdownText;
     }
 
     updateCountdown();
